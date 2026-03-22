@@ -1,0 +1,4 @@
+"""
+Application-specific exceptions package.
+"""
+
