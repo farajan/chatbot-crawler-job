@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from urllib.parse import urlparse, urlunparse
-from uuid import UUID, uuid4
+from uuid import UUID
+
+from uuid_utils import uuid7
 
 from app.db.crawl_page_repository import CrawlPageRepository, get_crawl_page_repository
 from app.domin.crawl_page import CrawlPage
@@ -58,7 +60,7 @@ class CrawlPageService:
     ) -> CrawlPage:
         now = datetime.now(timezone.utc)
         crawl_page = CrawlPage(
-            id=uuid4(),
+            id=uuid7(),
             crawl_job_id=crawl_job_id,
             url=url,
             is_root=is_root,

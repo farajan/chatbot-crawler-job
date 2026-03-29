@@ -4,26 +4,17 @@ Lightweight Postgres data-access helpers using asyncpg.
 from __future__ import annotations
 
 from typing import Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import asyncpg
 from asyncpg import Pool
+from uuid_utils import uuid7
 
 from app.config import get_settings
 
-try:
-    from uuid import uuid7 as _uuid7  # Python 3.12+
-except ImportError:  # pragma: no cover - compatibility fallback
-    _uuid7 = None
-
 
 def _generate_uuid() -> UUID:
-    """
-    Prefer UUIDv7 for better index locality; fall back to UUIDv4 if unavailable.
-    """
-    if _uuid7:
-        return _uuid7()
-    return uuid4()
+    return uuid7()
 
 
 class Database:
