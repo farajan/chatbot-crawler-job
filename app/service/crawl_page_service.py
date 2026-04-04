@@ -4,7 +4,6 @@ Service layer for crawl page domain operations.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from urllib.parse import urlparse, urlunparse
 from uuid import UUID
 
 from uuid_utils import uuid7
@@ -13,40 +12,9 @@ import logging
 
 from app.db.crawl_page_repository import CrawlPageRepository, get_crawl_page_repository
 from app.domin.crawl_page import CrawlPage
+from app.service.url_utils import normalize_url, should_skip_url
 
 logger = logging.getLogger(__name__)
-
-
-def normalize_url(url: str) -> str:
-    """
-    Normalize URL to ensure consistent storage and deduplication.
-
-    - Converts entire URL to lowercase
-    - Adds 'www.' prefix to hostname if not present
-    - Normalizes scheme to 'https' (http and https treated as same)
-
-    Examples:
-        https://www.example.com -> https://www.example.com
-        https://example.com -> https://www.example.com
-        HTTP://EXAMPLE.COM -> https://www.example.com
-        http://Example.Com/Path -> https://www.example.com/path
-    """
-    parsed = urlparse(url.lower())
-
-    netloc = parsed.netloc
-    if netloc and not netloc.startswith('www.'):
-        netloc = f'www.{netloc}'
-
-    scheme = 'https'
-
-    return urlunparse((
-        scheme,
-        netloc,
-        parsed.path,
-        parsed.params,
-        parsed.query,
-        parsed.fragment
-    ))
 
 
 class CrawlPageService:
@@ -96,6 +64,10 @@ class CrawlPageService:
         hash_content: str,
     ) -> CrawlPage | None:
         if not markdown_content or not markdown_content.strip():
+            return None
+
+        if should_skip_url(url):
+            logger.debug("Skipping URL by pattern: %s", url)
             return None
 
         normalized_url = normalize_url(url)

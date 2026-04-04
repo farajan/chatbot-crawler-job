@@ -14,12 +14,12 @@ from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
 from crawl4ai.content_filter_strategy import PruningContentFilter
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
-from crawl4ai.deep_crawling.filters import DomainFilter, FilterChain, URLPatternFilter
+from crawl4ai.deep_crawling.filters import DomainFilter, FilterChain, URLFilter, URLPatternFilter
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
-from crawl4ai.types import URLFilter
 from crawl4ai.utils import normalize_url_for_deep_crawl
 
 from app.config import get_settings
+from app.service.url_utils import should_skip_url
 from app.db.db import database
 from app.domin.crawl_job import CrawlJobState
 from app.service.crawl_job_finder_service import get_crawl_job_finder_service, CrawlJobFinderService
@@ -100,6 +100,13 @@ BLOCKED_ASSET_REGEX = re.compile(
 )
 
 
+class SkipPatternFilter(URLFilter):
+    """Reject URLs matching well-known junk patterns (login, feeds, search, …)."""
+
+    def apply(self, url: str) -> bool:
+        return not should_skip_url(url)
+
+
 @dataclass(frozen=True)
 class CrawlConfig:
     max_depth: int
@@ -160,7 +167,10 @@ def _build_filter_chain(
     if crawl_config.url_patterns:
         filters.append(URLPatternFilter(patterns=crawl_config.url_patterns))
 
-    # 3) Always block obvious binary assets by extension/handlers
+    # 3) Skip well-known junk URLs (login, feeds, search, print views, …)
+    filters.append(SkipPatternFilter())
+
+    # 4) Always block obvious binary assets by extension/handlers
     # reverse=True => block matching patterns
     filters.append(URLPatternFilter(patterns=[BLOCKED_ASSET_REGEX], reverse=True))
 
