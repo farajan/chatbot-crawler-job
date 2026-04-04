@@ -12,8 +12,10 @@ from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
+from crawl4ai.content_filter_strategy import PruningContentFilter
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.deep_crawling.filters import DomainFilter, FilterChain, URLPatternFilter
+from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 from crawl4ai.types import URLFilter
 from crawl4ai.utils import normalize_url_for_deep_crawl
 
@@ -208,6 +210,14 @@ class CrawlerService:
             # css_selector="main, article, [role='main'], .content, #content",
             # excluded_tags=["nav", "header", "footer", "aside"],
             excluded_tags=["aside"],
+            markdown_generator=DefaultMarkdownGenerator(
+                content_filter=PruningContentFilter(
+                    threshold=0.48,
+                    threshold_type="dynamic",
+                    min_word_threshold=5,
+                ),
+                options={"ignore_links": True},
+            ),
         )
 
         total_pages = 0
@@ -227,11 +237,9 @@ class CrawlerService:
                         or getattr(result, "cleaned_html", "")
                         or ""
                     )
-                    full_markdown = (
-                        getattr(result, "markdown", None)
-                        or getattr(result, "content", "")
-                        or ""
-                    )
+                    md_result = result.markdown
+                    full_markdown = md_result.raw_markdown if md_result else ""
+                    summary_content = md_result.fit_markdown if md_result else ""
                     normalized_html = _normalize_html(html_content) if html_content else ""
                     hash_content = hashlib.sha256(normalized_html.encode("utf-8")).hexdigest()
                     depth = int(result.metadata.get("depth", 0)) if result.metadata else 0
@@ -242,6 +250,7 @@ class CrawlerService:
                         is_root=is_root,
                         html_content=normalized_html,
                         markdown_content=full_markdown,
+                        summary_content=summary_content,
                         hash_content=hash_content,
                     )
                     logger.info(
