@@ -9,8 +9,12 @@ from uuid import UUID
 
 from uuid_utils import uuid7
 
+import logging
+
 from app.db.crawl_page_repository import CrawlPageRepository, get_crawl_page_repository
 from app.domin.crawl_page import CrawlPage
+
+logger = logging.getLogger(__name__)
 
 
 def normalize_url(url: str) -> str:
@@ -97,6 +101,9 @@ class CrawlPageService:
         normalized_url = normalize_url(url)
         existing = await self._repository.find_by_job_and_url(crawl_job_id, normalized_url)
         if existing is None:
+            if await self._repository.exists_by_job_and_hash(crawl_job_id, hash_content):
+                logger.info("Skipping duplicate page %s (hash %s already exists for job %s)", normalized_url, hash_content[:12], crawl_job_id)
+                return None
             return await self.create(
                 crawl_job_id=crawl_job_id,
                 url=normalized_url,

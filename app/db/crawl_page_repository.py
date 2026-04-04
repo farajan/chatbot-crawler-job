@@ -85,6 +85,16 @@ class CrawlPageRepository:
         )
         return crawl_page
 
+    async def exists_by_job_and_hash(self, crawl_job_id: UUID, hash_content: str) -> bool:
+        pool = await self._db.connect()
+        query = """
+            SELECT 1 FROM crawl_page
+            WHERE crawl_job_id = $1 AND hash_content = $2
+            LIMIT 1
+        """
+        row = await pool.fetchrow(query, crawl_job_id, hash_content)
+        return row is not None
+
     async def find_by_job_and_url(self, crawl_job_id: UUID, url: str) -> Optional[CrawlPage]:
         pool = await self._db.connect()
         query = """
