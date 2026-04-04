@@ -16,7 +16,7 @@ class CrawlPage:
     is_root: bool
     html_content: str
     markdown_content: str
-    summary_content: str
+    content_summary: str
     hash_content: str
     first_seen_at: datetime
     last_seen_at: datetime
@@ -25,11 +25,11 @@ class CrawlPage:
     created_at: datetime
     updated_at: datetime
 
-    def update(self, html_content: str, markdown_content: str, summary_content: str, hash_content: str) -> None:
+    def update(self, html_content: str, markdown_content: str, content_summary: str, hash_content: str) -> None:
         now = datetime.now(timezone.utc)
         self.html_content = html_content
         self.markdown_content = markdown_content
-        self.summary_content = summary_content
+        self.content_summary = content_summary
         self.hash_content = hash_content
         self.last_seen_at = now
         self.last_changed_at = now

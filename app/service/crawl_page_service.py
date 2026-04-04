@@ -28,7 +28,7 @@ class CrawlPageService:
         is_root: bool,
         html_content: str,
         markdown_content: str,
-        summary_content: str,
+        content_summary: str,
         hash_content: str,
     ) -> CrawlPage:
         now = datetime.now(timezone.utc)
@@ -39,7 +39,7 @@ class CrawlPageService:
             is_root=is_root,
             html_content=html_content,
             markdown_content=markdown_content,
-            summary_content=summary_content,
+            content_summary=content_summary,
             hash_content=hash_content,
             first_seen_at=now,
             last_seen_at=now,
@@ -60,7 +60,7 @@ class CrawlPageService:
         is_root: bool,
         html_content: str,
         markdown_content: str,
-        summary_content: str,
+        content_summary: str,
         hash_content: str,
     ) -> CrawlPage | None:
         if not markdown_content or not markdown_content.strip():
@@ -82,7 +82,7 @@ class CrawlPageService:
                 is_root=is_root,
                 html_content=html_content,
                 markdown_content=markdown_content,
-                summary_content=summary_content,
+                content_summary=content_summary,
                 hash_content=hash_content,
             )
 
@@ -93,7 +93,7 @@ class CrawlPageService:
         existing.update(
             html_content=html_content,
             markdown_content=markdown_content,
-            summary_content=summary_content,
+            content_summary=content_summary,
             hash_content=hash_content,
         )
         return await self.update(existing)

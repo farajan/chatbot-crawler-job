@@ -25,7 +25,7 @@ class CrawlPageRepository:
                 is_root,
                 html_content,
                 markdown_content,
-                summary_content,
+                content_summary,
                 hash_content,
                 first_seen_at,
                 last_seen_at,
@@ -44,7 +44,7 @@ class CrawlPageRepository:
             crawl_page.is_root,
             crawl_page.html_content,
             crawl_page.markdown_content,
-            crawl_page.summary_content,
+            crawl_page.content_summary,
             crawl_page.hash_content,
             crawl_page.first_seen_at,
             crawl_page.last_seen_at,
@@ -63,7 +63,7 @@ class CrawlPageRepository:
             SET
                 html_content = $1,
                 markdown_content = $2,
-                summary_content = $3,
+                content_summary = $3,
                 hash_content = $4,
                 last_seen_at = $5,
                 last_changed_at = $6,
@@ -75,7 +75,7 @@ class CrawlPageRepository:
             query,
             crawl_page.html_content,
             crawl_page.markdown_content,
-            crawl_page.summary_content,
+            crawl_page.content_summary,
             crawl_page.hash_content,
             crawl_page.last_seen_at,
             crawl_page.last_changed_at,
@@ -98,7 +98,7 @@ class CrawlPageRepository:
     async def find_by_job_and_url(self, crawl_job_id: UUID, url: str) -> Optional[CrawlPage]:
         pool = await self._db.connect()
         query = """
-            SELECT id, crawl_job_id, url, is_root, html_content, markdown_content, summary_content, hash_content,
+            SELECT id, crawl_job_id, url, is_root, html_content, markdown_content, content_summary, hash_content,
                    first_seen_at, last_seen_at, last_changed_at, version, created_at, updated_at
             FROM crawl_page
             WHERE crawl_job_id = $1 AND url = $2
@@ -113,7 +113,7 @@ class CrawlPageRepository:
             is_root=row["is_root"],
             html_content=row["html_content"],
             markdown_content=row["markdown_content"],
-            summary_content=row["summary_content"],
+            content_summary=row["content_summary"],
             hash_content=row["hash_content"],
             first_seen_at=row["first_seen_at"],
             last_seen_at=row["last_seen_at"],
