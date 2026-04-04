@@ -249,7 +249,7 @@ class CrawlerService:
                     )
                     md_result = result.markdown
                     full_markdown = md_result.raw_markdown if md_result else ""
-                    content_summary = md_result.fit_markdown if md_result else ""
+                    content_summary = md_result.fit_markdown if md_result else None
                     normalized_html = _normalize_html(html_content) if html_content else ""
                     hash_content = hashlib.sha256(normalized_html.encode("utf-8")).hexdigest()
                     depth = int(result.metadata.get("depth", 0)) if result.metadata else 0

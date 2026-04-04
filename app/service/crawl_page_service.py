@@ -28,9 +28,10 @@ class CrawlPageService:
         is_root: bool,
         html_content: str,
         markdown_content: str,
-        content_summary: str,
+        content_summary: str | None,
         hash_content: str,
     ) -> CrawlPage:
+        content_summary = content_summary if content_summary and content_summary.strip() else None
         now = datetime.now(timezone.utc)
         crawl_page = CrawlPage(
             id=uuid7(),
@@ -60,9 +61,10 @@ class CrawlPageService:
         is_root: bool,
         html_content: str,
         markdown_content: str,
-        content_summary: str,
+        content_summary: str | None,
         hash_content: str,
     ) -> CrawlPage | None:
+        content_summary = content_summary if content_summary and content_summary.strip() else None
         if not markdown_content or not markdown_content.strip():
             return None
 
